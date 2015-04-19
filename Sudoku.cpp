@@ -171,6 +171,7 @@ void Sudoku::checkpossible(int q[][12])
         }
     }
 //檢查
+/*
     int morecheck[12][12][9];
     int s[16][9][9];
     int l;
@@ -239,14 +240,14 @@ void Sudoku::checkpossible(int q[][12])
                     nomore++;
             }
         }
-    }
+    }*/
     //終止條件
-    if(able==0&&have!=144&&nomore==144){
-        cout<<"2"<<endl;
+    if(able==0&&have!=144){
+	tryans();
     }    
 	int correct;
     //再跑一次
-    if((able!=0&&have!=144)||(able==0&&have!=144&&nomore!=144)){
+    if(able!=0&&have!=144){
         checkpossible(q);
     }
     else if(have==144){
@@ -335,3 +336,123 @@ int Sudoku::noanswer(int c[][12])
 	return 0;
 }
 
+int Sudoku::smallpossible(int place){
+    int i, j, k, p;
+    int possible[12][12][9];
+    int n[16][9];
+   for(i=0;i<12;i++){
+	for(j=0;j<12;j++){
+		if(q[i][j]==0){
+			for(k=0;k<9;k++){
+			possible[i][j][k]=1;
+			}
+		}
+	}
+}
+
+ //刪掉橫的跟直的有的數字
+	for(i=0;i<12;i++){
+        for(j=0;j<12;j++){
+            if(q[i][j]==0){
+                    for(k=0;k<12;k++){
+                        if(q[i][k]!=-1&&q[i][k]!=0){
+                            possible[i][j][q[i][k]-1]=0;
+                        }
+                    }
+                    for(k=0;k<12;k++){
+                        if(q[k][j]!=-1&&q[k][j]!=0){
+                            possible[i][j][q[k][j]-1]=0;
+                        }
+                    }
+            }
+        }
+	}
+	//刪掉九格有的數字
+    for(i=0;i<12;i++){
+        for(j=0;j<12;j++){
+            n[(i/3)*4+j/3][(i%3)*3+(j%3)]=q[i][j];
+        }
+    }
+    for(i=0;i<12;i++){
+        for(j=0;j<12;j++){
+            if(q[i][j]==0){
+                p=(i/3)*4+j/3;
+                for(k=0;k<9;k++){
+                    if(n[p][k]!=-1&&n[p][k]!=0)
+                        possible[i][j][n[p][k]-1]=0;
+                }
+            }
+        }
+    }
+for(k=0;k<9;k++){
+    if(possible[(place-(place%12))/12][place%12][k]==1&&(k+1)>q[(place-(place%12))/12][place%12])
+          {return k+1;}
+	}
+	return 0;
+	
+}
+
+void Sudoku::moveforward(){
+    do{place++;}
+    while(q[(place-(place%12))/12][place%12]!=0&&place<144);
+}
+
+void Sudoku::tryans(){
+	int ans;
+	int i, j;
+	int check=0;
+	int tmp[144];
+	int result[12][12];
+	tmpp=1;
+	place=-1;
+	moveforward();
+	do{
+	ans=smallpossible(place);
+	if(ans!=0&&place!=144){
+		tmp[tmpp]=place;
+		tmpp++;
+		q[(place-(place%12))/12][place%12]=ans;
+		moveforward();
+	}
+	if(ans==0&&place!=144){
+		if(tmpp!=1)
+		{
+			q[(place-(place%12))/12][place%12]=ans;
+			place=tmp[--tmpp];
+		}
+		else 
+		{place=-1;}
+	}
+	if(ans!=0&&place==144){
+		check++;
+		for(i=0;i<12;i++){
+			for(j=0;j<12;j++){
+				result[i][j]=q[i][j];
+			}
+		}
+		place=tmp[--tmpp];
+	}
+/*	system("clear");
+	for(i=0;i<12;i++){
+		for(j=0;j<12;j++){
+			cout<<q[i][j]<<" ";
+		}
+		cout<<endl;
+	}
+	sleep(1);*/		
+	}
+	while(place>-1&&place<144&&check<2);
+	if(check==0&&place==-1)
+		{cout<<"0"<<endl;}
+	if(check==1){
+		cout<<"1"<<endl;
+		for(i=0;i<12;i++){
+			for(j=0;j<12;j++){
+				cout<<result[i][j]<<" ";
+			}
+		cout<<endl;
+		}
+	}
+	if(check>1)
+		{cout<<"2"<<endl;}
+}
